@@ -32,6 +32,8 @@ export async function createEvent({ userId, event, path }: CreateEventParams) {
   try {
     await connectToDatabase()
 
+    console.log("this is trying to create an event: ",userId)
+
     const organizer = await User.findById(userId)
     if (!organizer) throw new Error('Organizer not found')
 
