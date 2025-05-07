@@ -40,6 +40,7 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
     }
     : eventDefaultValues;
   const router = useRouter();
+  console.log("clerkId eventform: ",userId)
 
   const { startUpload } = useUploadThing('imageUploader')
 
@@ -64,8 +65,8 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
     if(type === 'Create') {
       try {
         const newEvent = await createEvent({
-          event: { ...values, imageUrl: uploadedImageUrl },
           userId,
+          event: { ...values, imageUrl: uploadedImageUrl },
           path: '/profile'
         })
 
