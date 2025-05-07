@@ -1,5 +1,3 @@
-import mongoose from "mongoose"
-
 // ====== USER PARAMS
 export type CreateUserParams = {
   clerkId: string

@@ -15,16 +15,36 @@ import {
   GetAllEventsParams,
   GetEventsByUserParams,
   GetRelatedEventsByCategoryParams,
+  Event as event
 } from '@/types'
 
 const getCategoryByName = async (name: string) => {
   return Category.findOne({ name: { $regex: name, $options: 'i' } })
 }
 
-const populateEvent = (query: any) => {
-  return query
-    .populate({ path: 'organizer', model: User, select: '_id firstName lastName' })
-    .populate({ path: 'category', model: Category, select: '_id name' })
+// const populateEvent = (query: any) => {
+//   return query
+//     .populate({ path: 'organizer', model: User, select: '_id firstName lastName' })
+//     .populate({ path: 'category', model: Category, select: '_id name' })
+// }
+
+export async function populateEvent(query: any) {
+  const events: event[] = await query.lean();
+  
+  const clerkIds = events.map(e => e.organizer);
+  const users = await User.find({ clerkId: { $in: clerkIds } }).lean();
+  const userMap = new Map(users.map(u => [u.clerkId, u]));
+
+  const categoryIds = events.map(e => e.category);
+  const categories = await Category.find({ _id: { $in: categoryIds } }).lean();
+  //@ts-ignore
+  const categoryMap = new Map(categories.map(c => [c._id.toString(), c]));
+
+  return events.map(event => ({
+    ...event,
+    organizer: userMap.get(event.organizer) || null,
+    category: categoryMap.get(event.category?.toString()) || null,
+  }));
 }
 
 // CREATE
@@ -106,15 +126,20 @@ export async function getAllEvents({ query, limit = 6, page, category }: GetAllE
     const conditions = {
       $and: [titleCondition, categoryCondition ? { category: categoryCondition._id } : {}],
     }
-
+    
     const skipAmount = (Number(page) - 1) * limit
     const eventsQuery = Event.find(conditions)
-      .sort({ createdAt: 'desc' })
-      .skip(skipAmount)
-      .limit(limit)
-
-    const events = await populateEvent(eventsQuery)
+    .sort({ createdAt: 'desc' })
+    .skip(skipAmount)
+    .limit(limit)
+    
+    console.log("works fine till here")
+      const events = await populateEvent(eventsQuery)
+      // const events = await Event.find()
+      console.log("some error before this")
     const eventsCount = await Event.countDocuments(conditions)
+    console.log(eventsCount)
+
 
     return {
       data: JSON.parse(JSON.stringify(events)),
