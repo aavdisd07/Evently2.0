@@ -36,10 +36,10 @@ export async function createEvent({ userId, event, path }: CreateEventParams) {
 
     console.log("this clerkId trying to create an event: ",userId)
 
-    const organizer = await User.findOne({clerkId: new mongoose.Types.ObjectId(userId)})
+    const organizer = await User.findOne({clerkId: userId})
     if (!organizer) throw new Error('Organizer not found')
 
-    const newEvent = await Event.create({ ...event, category: event.categoryId, organizer: userId })
+    const newEvent = await Event.create({ ...event, category: event.categoryId, organizer: organizer._id })
     revalidatePath(path)
 
     return JSON.parse(JSON.stringify(newEvent))
