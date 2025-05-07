@@ -25,7 +25,7 @@ import mongoose from "mongoose"
 
 
 type EventFormProps = {
-  userId: mongoose.Schema.Types.ObjectId
+  userId: string
   type: "Create" | "Update"
   event?: IEvent,
   eventId?: string

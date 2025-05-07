@@ -7,7 +7,7 @@ const CreateEvent = () => {
 
   console.log(sessionClaims)
 
-  const userId = sessionClaims?.sub as unknown as mongoose.Schema.Types.ObjectId;
+  const userId = sessionClaims?.sub as string;
   console.log(userId)
 
   return (
