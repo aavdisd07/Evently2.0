@@ -21,10 +21,11 @@ import { Checkbox } from "../ui/checkbox"
 import { useRouter } from "next/navigation"
 import { createEvent, updateEvent } from "@/lib/actions/event.actions"
 import { IEvent } from "@/lib/database/models/event.model"
+import mongoose from "mongoose"
 
 
 type EventFormProps = {
-  userId: string
+  userId: mongoose.Schema.Types.ObjectId
   type: "Create" | "Update"
   event?: IEvent,
   eventId?: string

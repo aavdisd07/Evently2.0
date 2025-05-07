@@ -1,12 +1,13 @@
 import EventForm from "@/components/shared/EventForm"
 import { auth } from "@clerk/nextjs";
+import mongoose from "mongoose";
 
 const CreateEvent = () => {
   const { sessionClaims } = auth();
 
   console.log(sessionClaims)
 
-  const userId = sessionClaims?.sub as string;
+  const userId = sessionClaims?.sub as unknown as mongoose.Schema.Types.ObjectId;
   console.log(userId)
 
   return (

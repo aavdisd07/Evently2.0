@@ -1,3 +1,5 @@
+import mongoose from "mongoose"
+
 // ====== USER PARAMS
 export type CreateUserParams = {
   clerkId: string
@@ -17,7 +19,7 @@ export type UpdateUserParams = {
 
 // ====== EVENT PARAMS
 export type CreateEventParams = {
-  userId: string
+  userId: mongoose.Schema.Types.ObjectId
   event: {
     title: string
     description: string
@@ -34,7 +36,7 @@ export type CreateEventParams = {
 }
 
 export type UpdateEventParams = {
-  userId: string
+  userId: mongoose.Schema.Types.ObjectId
   event: {
     _id: string
     title: string
