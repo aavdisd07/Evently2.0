@@ -3,10 +3,11 @@
 import { revalidatePath } from 'next/cache'
 
 import { connectToDatabase } from '@/lib/database'
-import Event from '@/lib/database/models/event.model'
-import User from '@/lib/database/models/user.model'
-import Category from '@/lib/database/models/category.model'
+import Event,{IEvent} from '@/lib/database/models/event.model'
+import User,{IUser} from '@/lib/database/models/user.model'
+import Category,{ICategory} from '@/lib/database/models/category.model'
 import { handleError } from '@/lib/utils'
+import mongoose from 'mongoose';
 
 import {
   CreateEventParams,
@@ -15,37 +16,18 @@ import {
   GetAllEventsParams,
   GetEventsByUserParams,
   GetRelatedEventsByCategoryParams,
-  Event as event
 } from '@/types'
 
 const getCategoryByName = async (name: string) => {
   return Category.findOne({ name: { $regex: name, $options: 'i' } })
 }
 
-// const populateEvent = (query: any) => {
-//   return query
-//     .populate({ path: 'organizer', model: User, select: '_id firstName lastName' })
-//     .populate({ path: 'category', model: Category, select: '_id name' })
-// }
-
-export async function populateEvent(query: any) {
-  const events: event[] = await query.lean();
-  
-  const clerkIds = events.map(e => e.organizer);
-  const users = await User.find({ clerkId: { $in: clerkIds } }).lean();
-  const userMap = new Map(users.map(u => [u.clerkId, u]));
-
-  const categoryIds = events.map(e => e.category);
-  const categories = await Category.find({ _id: { $in: categoryIds } }).lean();
-  //@ts-ignore
-  const categoryMap = new Map(categories.map(c => [c._id.toString(), c]));
-
-  return events.map(event => ({
-    ...event,
-    organizer: userMap.get(event.organizer) || null,
-    category: categoryMap.get(event.category?.toString()) || null,
-  }));
+const populateEvent = (query: any) => {
+  return query
+    .populate({ path: 'organizer', model: User, select: '_id firstName lastName' })
+    .populate({ path: 'category', model: Category, select: '_id name' })
 }
+
 
 // CREATE
 export async function createEvent({ userId, event, path }: CreateEventParams) {
@@ -54,7 +36,7 @@ export async function createEvent({ userId, event, path }: CreateEventParams) {
 
     console.log("this clerkId trying to create an event: ",userId)
 
-    const organizer = await User.findOne({clerkId: userId})
+    const organizer = await User.findOne({clerkId: new mongoose.Types.ObjectId(userId)})
     if (!organizer) throw new Error('Organizer not found')
 
     const newEvent = await Event.create({ ...event, category: event.categoryId, organizer: userId })
