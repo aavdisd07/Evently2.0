@@ -122,7 +122,8 @@ export async function getOrdersByUser({ userId, limit = 3, page }: GetOrdersByUs
     await connectToDatabase()
 
     const skipAmount = (Number(page) - 1) * limit
-    const conditions = { buyer: userId }
+    const buyer = await User.findOne({clerkId: userId})
+    const conditions = { buyer: buyer._id }
 
     const orders = await Order.distinct('event._id')
       .find(conditions)

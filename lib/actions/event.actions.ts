@@ -137,7 +137,9 @@ export async function getEventsByUser({ userId, limit = 6, page }: GetEventsByUs
   try {
     await connectToDatabase()
 
-    const conditions = { organizer: userId }
+    const organizer = await User.findOne({clerkId: userId})
+
+    const conditions = { organizer: organizer._id }
     const skipAmount = (page - 1) * limit
 
     const eventsQuery = Event.find(conditions)
